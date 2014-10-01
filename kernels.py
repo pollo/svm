@@ -13,8 +13,10 @@ def polynomial_kernel(p):
 
 def radial_kernel(sigma):
     def kernel(x, y):
+        x = np.array(x)
+        y = np.array(y)
         norm2 = np.linalg.norm(x-y, 2)**2
-        return exp(-norm2 / (2* sigma**2) )
+        return math.exp(-norm2 / (2* sigma**2) )
     return kernel
 
 def sigmoid_kernels(k, delta):

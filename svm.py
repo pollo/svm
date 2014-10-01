@@ -21,20 +21,36 @@ class SVM(object):
         self.epsilon = 10**-5
 
     def train(self, samples):
+        return self._solve_optimization(samples)
 
-        pass
+    def indicator(self, sample):
+        return sum([sv[0]*sv[1][1]*self.kernel(sample,sv[1][0])
+                    for sv in self.support_vector])
+
+    def predict(self, sample):
+        if self.indicator(sample)>0:
+            return 1
+        else:
+            return -1
 
     def _build_P(self, samples):
         return [[si[1]*sj[1]*self.kernel(si[0],sj[0]) for sj in samples]
                 for si in samples]
 
     def _solve_optimization(self, samples):
-        P = _build_P(samples)
-        q = [-1] * len(samples)
-        h = [0] * len(samples)
+        P = self._build_P(samples)
+        q = [-1.0] * len(samples)
+        h = [0.0] * len(samples)
         G = np.identity(len(samples)) * -1
         optimized = qp(matrix(P), matrix(q), matrix(G), matrix(h))
-        alphas = list(optimized['x'])
+        if optimized['status'] == 'optimal':
+            alphas = list(optimized['x'])
 
-        support_vector = [(alpha, samples[i]) for i,alpha in enumerate(alphas)
-                          if alpha>self.epsilon]
+            self.support_vector = [(alpha, samples[i])
+                                   for i,alpha in enumerate(alphas)
+                                   if alpha>self.epsilon]
+            return True
+        else:
+            print "No valid separating hyperplane found"
+            return False
+
