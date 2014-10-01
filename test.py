@@ -20,14 +20,14 @@ negative_points = generate_2d_points(10, -1, -0.5, 0.5, -0.5, 0.5)
 data = negative_points+positive_points
 random.shuffle(data)
 
-clf = SVM('rbf',sigma=2)
+clf = SVM('linear', C=100000)
 
 pprint.pprint(data)
 clf.train(data)
 pprint.pprint(clf.support_vector)
 
-xrange = numpy.arange(-10,10,0.1)
-yrange = numpy.arange(-10,10,0.1)
+xrange = numpy.arange(-5,5,0.1)
+yrange = numpy.arange(-5,5,0.1)
 
 grid = matrix([[clf.indicator((x,y)) for y in yrange]
                for x in xrange])

@@ -5,7 +5,7 @@ from cvxopt.solvers import qp
 from cvxopt.base import matrix
 
 class SVM(object):
-    def __init__(self, kernel_type='linear',
+    def __init__(self, kernel_type='linear', C=1.0,
                  degree=3.0, sigma=0.7, k=1.0, coef0=0.0):
         if kernel_type=='linear':
             self.kernel = linear_kernel()
@@ -19,6 +19,7 @@ class SVM(object):
             raise ValueError('Kernel '+kernel_type+' not available')
 
         self.epsilon = 10**-5
+        self.C = C
 
     def train(self, samples):
         return self._solve_optimization(samples)
@@ -40,8 +41,9 @@ class SVM(object):
     def _solve_optimization(self, samples):
         P = self._build_P(samples)
         q = [-1.0] * len(samples)
-        h = [0.0] * len(samples)
-        G = np.identity(len(samples)) * -1
+        h = [0.0] * len(samples) + [self.C] * len(samples)
+        G = np.concatenate((np.identity(len(samples)) * -1,
+                            np.identity(len(samples))))
         optimized = qp(matrix(P), matrix(q), matrix(G), matrix(h))
         if optimized['status'] == 'optimal':
             alphas = list(optimized['x'])
